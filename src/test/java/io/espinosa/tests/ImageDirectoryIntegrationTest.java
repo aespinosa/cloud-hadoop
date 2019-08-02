@@ -25,7 +25,7 @@ public class ImageDirectoryIntegrationTest {
     }
 
     @Test
-    public void newPersistentVolumeIsUnformatted() {
+    public void newPersistentVolumeIsUnformatted() throws Exception {
         ImageDirectory imageDirectory = new PersistentVolumeAsImageDirectory(createApiClient());
 
         V1PersistentVolume pv = new V1PersistentVolumeBuilder()
@@ -40,7 +40,7 @@ public class ImageDirectoryIntegrationTest {
     }
 
     @Test
-    public void markAsFormatted() {
+    public void markAsFormatted() throws Exception {
         ImageDirectory imageDirectory = new PersistentVolumeAsImageDirectory(createApiClient());
 
         V1PersistentVolume pv = new V1PersistentVolumeBuilder()
@@ -64,7 +64,7 @@ public class ImageDirectoryIntegrationTest {
     }
 
     @Test
-    public void annotatedPersistentVolumeIsFormatted() {
+    public void annotatedPersistentVolumeIsFormatted() throws Exception {
         ImageDirectory imageDirectory = new PersistentVolumeAsImageDirectory(createApiClient());
 
         V1PersistentVolume pv = new V1PersistentVolumeBuilder()

@@ -1,5 +1,6 @@
 package io.espinosa.hdfs.kubernetes;
 
+import com.google.protobuf.Api;
 import io.espinosa.hdfs.ImageDirectory;
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
@@ -28,13 +29,9 @@ public class PersistentVolumeAsImageDirectory implements ImageDirectory {
     }
 
     @Override
-    public boolean isFormatted() {
+    public boolean isFormatted() throws ApiException {
         V1PersistentVolume persistentVolume;
-        try {
-            persistentVolume = getPersistentVolumeFromPod();
-        } catch (ApiException e) {
-            return false;
-        }
+        persistentVolume = getPersistentVolumeFromPod();
         Map<String, String> annotations = persistentVolume.getMetadata().getAnnotations();
         if (annotations == null || annotations.isEmpty()) {
             return false;
@@ -67,13 +64,8 @@ public class PersistentVolumeAsImageDirectory implements ImageDirectory {
     }
 
     @Override
-    public void markAsFormatted() {
-        V1PersistentVolume persistentVolume = null;
-        try {
-            persistentVolume = getPersistentVolumeFromPod();
-        } catch (ApiException e) {
-            // TODO: Figure out what is expected here
-        }
+    public void markAsFormatted() throws ApiException {
+        V1PersistentVolume persistentVolume = getPersistentVolumeFromPod();
         Map<String, String> annotations = persistentVolume.getMetadata().getAnnotations();
         if (annotations == null ) {
             annotations = new HashMap<String, String>();

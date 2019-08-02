@@ -12,11 +12,11 @@ import org.junit.*;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 public class ImageDirectoryIntegrationTest {
-    private static final int PORT = 8089;
-    public static final String TEST_NAMESPACE = "default";
-    @Rule public WireMockRule stubServer = new WireMockRule(PORT);
+    private static final String TEST_NAMESPACE = "default";
+    @Rule public WireMockRule stubServer = new WireMockRule(wireMockConfig().dynamicPort());
     private JSON json;
 
     @Before
@@ -40,7 +40,7 @@ public class ImageDirectoryIntegrationTest {
     }
 
     @Test
-    public void newPersistentVolumeGetsFormatted() {
+    public void markAsFormatted() {
         ImageDirectory imageDirectory = new PersistentVolumeAsImageDirectory(createApiClient());
 
         V1PersistentVolume pv = new V1PersistentVolumeBuilder()

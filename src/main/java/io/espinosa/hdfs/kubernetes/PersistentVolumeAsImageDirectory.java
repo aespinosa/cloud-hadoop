@@ -22,6 +22,7 @@ public class PersistentVolumeAsImageDirectory implements ImageDirectory {
 
     public PersistentVolumeAsImageDirectory(ApiClient client) {
         this.apiClient = client;
+        // FIXME make this non-hardwired
         this.podNameSpace = "default";
         this.podName = "namenode-0";
     }

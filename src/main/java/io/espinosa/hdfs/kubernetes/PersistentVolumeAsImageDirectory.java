@@ -21,11 +21,10 @@ public class PersistentVolumeAsImageDirectory implements ImageDirectory {
     private String podName;
     private String podNameSpace;
 
-    public PersistentVolumeAsImageDirectory(ApiClient client) {
+    public PersistentVolumeAsImageDirectory(ApiClient client, String podNameSpace, String podName) {
         this.apiClient = client;
-        // FIXME make this non-hardwired
-        this.podNameSpace = "default";
-        this.podName = "namenode-0";
+        this.podNameSpace = podNameSpace;
+        this.podName = podName;
     }
 
     @Override

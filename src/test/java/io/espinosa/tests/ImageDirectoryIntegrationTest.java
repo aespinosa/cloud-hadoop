@@ -16,6 +16,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 
 public class ImageDirectoryIntegrationTest {
     private static final String TEST_NAMESPACE = "default";
+    private static final String POD_NAME = "namenode-0";
     @Rule public WireMockRule stubServer = new WireMockRule(wireMockConfig().dynamicPort());
     private JSON json;
 
@@ -26,7 +27,7 @@ public class ImageDirectoryIntegrationTest {
 
     @Test
     public void newPersistentVolumeIsUnformatted() throws Exception {
-        ImageDirectory imageDirectory = new PersistentVolumeAsImageDirectory(createApiClient());
+        ImageDirectory imageDirectory = new PersistentVolumeAsImageDirectory(createApiClient(), TEST_NAMESPACE, POD_NAME);
 
         V1PersistentVolume pv = new V1PersistentVolumeBuilder()
                 .withNewMetadata()
@@ -41,7 +42,7 @@ public class ImageDirectoryIntegrationTest {
 
     @Test
     public void markAsFormatted() throws Exception {
-        ImageDirectory imageDirectory = new PersistentVolumeAsImageDirectory(createApiClient());
+        ImageDirectory imageDirectory = new PersistentVolumeAsImageDirectory(createApiClient(), TEST_NAMESPACE, POD_NAME);
 
         V1PersistentVolume pv = new V1PersistentVolumeBuilder()
                 .withNewMetadata()
@@ -65,7 +66,7 @@ public class ImageDirectoryIntegrationTest {
 
     @Test
     public void annotatedPersistentVolumeIsFormatted() throws Exception {
-        ImageDirectory imageDirectory = new PersistentVolumeAsImageDirectory(createApiClient());
+        ImageDirectory imageDirectory = new PersistentVolumeAsImageDirectory(createApiClient(), TEST_NAMESPACE, POD_NAME);
 
         V1PersistentVolume pv = new V1PersistentVolumeBuilder()
                 .withNewMetadata()

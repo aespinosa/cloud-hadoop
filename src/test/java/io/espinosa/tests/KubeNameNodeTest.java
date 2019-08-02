@@ -11,7 +11,7 @@ import static org.mockito.Mockito.*;
 
 public class KubeNameNodeTest extends TestCase {
     @Test
-    public void testFormattedImageDirectorySkipsFormatting() {
+    public void testFormattedImageDirectorySkipsFormatting() throws Exception {
         ImageDirectory imageDirectory = mock(ImageDirectory.class);
         ActualNameNode actualNameNode = mock(ActualNameNode.class);
 
@@ -25,7 +25,7 @@ public class KubeNameNodeTest extends TestCase {
     }
 
     @Test
-    public void testNewClusterFormatsImageDirectory() {
+    public void testNewClusterFormatsImageDirectory() throws Exception {
         ImageDirectory imageDirectory = mock(ImageDirectory.class);
         ActualNameNode actualNameNode = mock(ActualNameNode.class);
         ClusterState clusterState = mock(ClusterState.class);
@@ -42,7 +42,7 @@ public class KubeNameNodeTest extends TestCase {
     }
 
     @Test
-    public void testExistingClusterFormatsViaBootstrap() {
+    public void testExistingClusterFormatsViaBootstrap() throws Exception {
         ImageDirectory imageDirectory = mock(ImageDirectory.class);
         ActualNameNode actualNameNode = mock(ActualNameNode.class);
         ClusterState clusterState = mock(ClusterState.class);
@@ -57,7 +57,7 @@ public class KubeNameNodeTest extends TestCase {
     }
 
     @Test
-    public void testStartNameNodeAfterImageDirectoryChecks() {
+    public void testStartNameNodeAfterImageDirectoryChecks() throws Exception {
         ActualNameNode actualNameNode = mock(ActualNameNode.class);
         ImageDirectory imageDirectory = mock(ImageDirectory.class);
 

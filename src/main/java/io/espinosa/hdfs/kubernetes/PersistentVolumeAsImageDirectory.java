@@ -1,6 +1,5 @@
 package io.espinosa.hdfs.kubernetes;
 
-import com.google.protobuf.Api;
 import io.espinosa.hdfs.ImageDirectory;
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
@@ -9,7 +8,10 @@ import io.kubernetes.client.models.V1PersistentVolume;
 import io.kubernetes.client.models.V1PersistentVolumeClaim;
 import io.kubernetes.client.models.V1Pod;
 import io.kubernetes.client.models.V1Volume;
+import io.kubernetes.client.util.Config;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -25,6 +27,14 @@ public class PersistentVolumeAsImageDirectory implements ImageDirectory {
         this.apiClient = client;
         this.podNameSpace = podNameSpace;
         this.podName = podName;
+    }
+
+    public static ImageDirectory createFromCluster() throws IOException, UnknownHostException {
+        ApiClient client = Config.fromCluster();
+        String namespace = Util.readNamespaceFromCluster();
+        String podName = Util.readPodNameFromCluster();
+
+        return new PersistentVolumeAsImageDirectory(client, namespace, podName);
     }
 
     @Override
@@ -74,10 +84,6 @@ public class PersistentVolumeAsImageDirectory implements ImageDirectory {
 
         CoreV1Api api = new CoreV1Api(apiClient);
         String pvName = persistentVolume.getMetadata().getName();
-        try {
-            api.replacePersistentVolume(pvName, persistentVolume, null, null);
-        } catch (ApiException e) {
-            // TODO: Figure out what to do when this fails
-        }
+        api.replacePersistentVolume(pvName, persistentVolume, null, null);
     }
 }

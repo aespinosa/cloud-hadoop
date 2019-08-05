@@ -7,7 +7,9 @@ import io.kubernetes.client.apis.AppsV1Api;
 import io.kubernetes.client.apis.CoreV1Api;
 import io.kubernetes.client.models.V1Pod;
 import io.kubernetes.client.models.V1StatefulSet;
+import io.kubernetes.client.util.Config;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +23,13 @@ public class StatefulSetForClusterManagement implements ClusterState {
         this.client = client;
         this.namespace = namespace;
         this.podName = podName;
+    }
+
+    public static ClusterState createFromCluster() throws IOException {
+        ApiClient client = Config.fromCluster();
+        String namespace = Util.readNamespaceFromCluster();
+        String podName = Util.readPodNameFromCluster();
+        return new StatefulSetForClusterManagement(client, namespace, podName);
     }
 
     @Override

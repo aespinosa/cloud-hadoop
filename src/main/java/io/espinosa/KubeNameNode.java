@@ -3,23 +3,11 @@ package io.espinosa;
 import io.espinosa.hdfs.ActualNameNode;
 import io.espinosa.hdfs.ClusterState;
 import io.espinosa.hdfs.ImageDirectory;
-import io.kubernetes.client.ApiClient;
-import io.kubernetes.client.ApiException;
-import io.kubernetes.client.apis.AppsV1Api;
-import io.kubernetes.client.apis.CoreV1Api;
-import io.kubernetes.client.models.V1Pod;
-import io.kubernetes.client.util.Config;
-import io.kubernetes.client.util.Yaml;
-//import org.apache.hadoop.conf.Configuration;
-//import org.apache.hadoop.hdfs.DFSConfigKeys;
-//import org.apache.hadoop.hdfs.HdfsConfiguration;
-//import org.apache.hadoop.hdfs.server.namenode.NameNode;
-//import org.apache.hadoop.util.GenericOptionsParser;
-
-import java.io.IOException;
-import java.net.InetAddress;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import io.espinosa.hdfs.WrapperNameNode;
+import io.espinosa.hdfs.kubernetes.PersistentVolumeAsImageDirectory;
+import io.espinosa.hdfs.kubernetes.StatefulSetForClusterManagement;
+import org.apache.hadoop.hdfs.HdfsConfiguration;
+import org.apache.hadoop.util.GenericOptionsParser;
 
 public class KubeNameNode {
     private ClusterState clusterState;
@@ -32,7 +20,22 @@ public class KubeNameNode {
         this.clusterState = clusterState;
     }
 
-    public void start() {
+    public static void main(String argv[]) throws Exception {
+        ImageDirectory imageDirectory = PersistentVolumeAsImageDirectory.createFromCluster();
+        ClusterState clusterState = StatefulSetForClusterManagement.createFromCluster();
+        // Slosh kubernetes values into the configuration
+        HdfsConfiguration config = new HdfsConfiguration();
+        GenericOptionsParser optionsParser = new GenericOptionsParser(config, argv);
+        argv = optionsParser.getRemainingArgs();
+
+        ActualNameNode actualNameNode = new WrapperNameNode(config);
+
+        KubeNameNode kubeNameNode = new KubeNameNode(imageDirectory, actualNameNode, clusterState);
+
+        kubeNameNode.start();
+    }
+
+    public void start() throws Exception {
         if (imageDirectory.isFormatted()) {
             imageDirectory.skipFormatting();
         } else {

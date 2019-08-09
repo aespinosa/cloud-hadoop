@@ -1,0 +1,215 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: namenode
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  namespace: default
+  name: namenode-pod
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: namenode
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: namenode
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get"]
+    resourceNames: ["namenode-0", "namenode-1", "namenode-2"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get"]
+    resourceNames: ["image-namenode-0", "image-namenode-1", "image-namenode-2"]
+  - apiGroups: ["apps"]
+    resources: ["statefulsets"]
+    verbs: ["get", "put"]
+    resourceNames: ["namenode"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: default
+  name: namenode-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: namenode
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: default
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zkfc
+data:
+  hdfs-site.xml: |
+    <configuration>
+      <property>
+        <name>ha.zookeeper.quorum</name>
+        <value>zookeeper-0.zookeeper:2181</value>
+      </property>
+      <property>
+        <name>dfs.ha.automatic-failover.enabled</name>
+        <value>true</value>
+      </property>
+      <property>
+        <name>dfs.ha.fencing.methods</name>
+        <value>shell(/bin/true)</value>
+      </property>
+      <!--
+        Needed by zkfc to indicate that the namenode that it manages is configured in HA
+      -->
+      <property>
+        <name>dfs.nameservices</name>
+        <value>kubernetes</value>
+      </property>
+      <property>
+        <name>dfs.ha.namenodes.kubernetes</name>
+        <value>n1,n2,n3</value>
+      </property>
+      <property>
+        <name>dfs.namenode.rpc-bind-host</name>
+        <value>0.0.0.0</value>
+      </property>
+      <property>
+        <name>dfs.namenode.rpc-address.kubernetes.n1</name>
+        <value>namenode-0.namenode:8020</value>
+      </property>
+      <property>
+        <name>dfs.namenode.rpc-address.kubernetes.n2</name>
+        <value>namenode-1.namenode:8020</value>
+      </property>
+      <property>
+        <name>dfs.namenode.rpc-address.kubernetes.n3</name>
+        <value>namenode-2.namenode:8020</value>
+      </property>
+    </configuration>
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: namenode
+data:
+  hdfs-site.xml: |
+    <configuration>
+      <property>
+        <name>dfs.namenode.shared.edits.dir</name>
+        <value>qjournal://journalnode-0.journalnode:8485/test</value>
+      </property>
+      <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://kubernetes</value>
+      </property>
+      <property>
+        <name>dfs.namenode.name.dir</name>
+        <value>/var/run/hadoop/hdfs/name</value>
+      </property>
+      <property>
+        <name>dfs.nameservices</name>
+        <value>kubernetes</value>
+      </property>
+      <property>
+        <name>dfs.ha.namenodes.kubernetes</name>
+        <value>n1,n2,n3</value>
+      </property>
+      <property>
+        <name>dfs.namenode.rpc-bind-host</name>
+        <value>0.0.0.0</value>
+      </property>
+      <property>
+        <name>dfs.namenode.rpc-address.kubernetes.n1</name>
+        <value>namenode-0.namenode:8020</value>
+      </property>
+      <property>
+        <name>dfs.namenode.rpc-address.kubernetes.n2</name>
+        <value>namenode-1.namenode:8020</value>
+      </property>
+      <property>
+        <name>dfs.namenode.rpc-address.kubernetes.n3</name>
+        <value>namenode-2.namenode:8020</value>
+      </property>
+      <!--
+         Needed to accept failover requests from zkfc
+      -->
+      <property>
+        <name>dfs.ha.automatic-failover.enabled</name>
+        <value>true</value>
+      </property>
+    </configuration>
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: namenode
+spec:
+  clusterIP: None
+  selector:
+    app: namenode
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: namenode
+spec:
+  selector:
+    matchLabels:
+      app: namenode
+  serviceName: namenode
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: namenode
+    spec:
+      volumes:
+        - name: namenode-site
+          configMap:
+            name: namenode
+        - name: zkfc
+          configMap:
+            name: zkfc
+      containers:
+        - name: namenode
+          image: aespinosa/hadoop:latest
+          imagePullPolicy: Always
+          command: ["/hadoop-3.2.0/bin/hdfs"]
+          args: ["--config", "/etc/hadoop", "kube_namenode"]
+          volumeMounts:
+            - name: namenode-site
+              mountPath: /etc/hadoop
+            - name: image
+              mountPath: /var/run/hadoop/hdfs
+        - name: zkfc
+          image: aespinosa/hadoop:latest
+          imagePullPolicy: Always
+          command: ["/hadoop-3.2.0/bin/hdfs"]
+          args: ["--config", "/etc/hadoop", "kube_zkfc"]
+          volumeMounts:
+            - name: zkfc
+              mountPath: /etc/hadoop
+  volumeClaimTemplates:
+    - metadata:
+        name: image
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 4Gi

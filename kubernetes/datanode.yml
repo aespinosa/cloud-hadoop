@@ -1,0 +1,78 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: datanode
+data:
+  hdfs-site.xml: |
+    <configuration>
+      <property>
+        <name>dfs.nameservices</name>
+        <value>kubernetes</value>
+      </property>
+      <property>
+        <name>dfs.ha.namenodes.kubernetes</name>
+        <value>n1,n2,n3</value>
+      </property>
+      <property>
+        <name>dfs.namenode.rpc-bind-host</name>
+        <value>0.0.0.0</value>
+      </property>
+      <property>
+        <name>dfs.namenode.rpc-address.kubernetes.n1</name>
+        <value>namenode-0.namenode:8020</value>
+      </property>
+      <property>
+        <name>dfs.namenode.rpc-address.kubernetes.n2</name>
+        <value>namenode-1.namenode:8020</value>
+      </property>
+      <property>
+        <name>dfs.namenode.rpc-address.kubernetes.n3</name>
+        <value>namenode-2.namenode:8020</value>
+      </property>
+      <!--
+         Needed to accept failover requests from zkfc
+      -->
+      <property>
+        <name>dfs.ha.automatic-failover.enabled</name>
+        <value>true</value>
+      </property>
+    </configuration>
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: datanode
+spec:
+  clusterIP: None
+  selector:
+    app: datanode
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: datanode
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: datanode
+  serviceName: datanode
+  template:
+    metadata:
+      labels:
+        app: datanode
+    spec:
+      volumes:
+        - name: datanode-site
+          configMap:
+            name: datanode
+      containers:
+        - name: namenode
+          image: aespinosa/hadoop:latest
+          imagePullPolicy: Always
+          command: ["/hadoop-3.2.0/bin/hdfs"]
+          args: ["--config", "/etc/hadoop", "datanode"]
+          volumeMounts:
+            - name: datanode-site
+              mountPath: /etc/hadoop

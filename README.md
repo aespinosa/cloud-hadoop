@@ -59,30 +59,30 @@ The following are prerequisites to use `hdfs kube_namenode`
 * `dfs.namenode.dir` must be set to be a child directory of the mountPath of the
   persistent volume.
 
-    apiVersion: apps/v1
-    kind: StatefulSet
-    metadata:
-      name: namenode
-    spec:
-      # ...
-      template:
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: namenode
+      spec:
         # ...
-        containers:
-          - name: namenode
-            image: aespinosa/hadoop:3.2.0
-            command: ["/hadoop-3.2.0/bin/hdfs"]
-            args: ["kube_namenode"]
-            volumeMounts:
-              - name: image
-                # The hdfs-site.xml property dfs.namenode.name.dir should be a
-                # directory under this mountPath e.g. /var/lib/hdfs/image
-                mountPath: /var/lib/hdfs
-          - name: zkfc
-            # ...
-      volumeClaimTemplates:
-        - metadata:
-            name: image
-            # ...
+        template:
+          # ...
+          containers:
+            - name: namenode
+              image: aespinosa/hadoop:3.2.0
+              command: ["/hadoop-3.2.0/bin/hdfs"]
+              args: ["kube_namenode"]
+              volumeMounts:
+                - name: image
+                  # The hdfs-site.xml property dfs.namenode.name.dir should be a
+                  # directory under this mountPath e.g. /var/lib/hdfs/image
+                  mountPath: /var/lib/hdfs
+            - name: zkfc
+              # ...
+        volumeClaimTemplates:
+          - metadata:
+              name: image
+              # ...
 
 The following RBAC properties are needed so that `hdfs kube_namenode` will work:
 

@@ -17,7 +17,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 public class ImageDirectoryIntegrationTest {
     private static final String TEST_NAMESPACE = "default";
     private static final String POD_NAME = "namenode-0";
-    @Rule public WireMockRule stubServer = new WireMockRule(wireMockConfig().dynamicPort());
+    @Rule public WireMockRule stubServer = new WireMockRule(WireMockConfiguration.wireMockConfig().dynamicPort());
     private JSON json;
 
     @Before
@@ -51,15 +51,15 @@ public class ImageDirectoryIntegrationTest {
                 .build();
 
         stubPod(TEST_NAMESPACE, pv);
-        stubFor(put("/api/v1/persistentvolumes/image-volume"));
+        WireMock.stubFor(WireMock.put("/api/v1/persistentvolumes/image-volume"));
 
         imageDirectory.markAsFormatted();
 
         pv.getMetadata().setAnnotations(Map.of(PersistentVolumeAsImageDirectory.NAMENODE_IMAGE_FORMATTED, "true"));
-        verify(
-                putRequestedFor(urlPathEqualTo("/api/v1/persistentvolumes/image-volume"))
+        WireMock.verify(
+                WireMock.putRequestedFor(WireMock.urlPathEqualTo("/api/v1/persistentvolumes/image-volume"))
                 .withRequestBody(
-                        equalToJson(json.serialize(pv))
+                        WireMock.equalToJson(json.serialize(pv))
                 )
         );
     }
@@ -88,8 +88,8 @@ public class ImageDirectoryIntegrationTest {
     }
 
     private void stubPod(String namespace, V1PersistentVolume pv) {
-        stubFor(
-                get("/api/v1/persistentvolumes/" + pv.getMetadata().getName())
+        WireMock.stubFor(
+                WireMock.get("/api/v1/persistentvolumes/" + pv.getMetadata().getName())
                         .willReturn(
                                 aJsonResponse(pv)
                         )
@@ -119,14 +119,14 @@ public class ImageDirectoryIntegrationTest {
                 .build();
 
 
-        stubFor(
-                get("/api/v1/namespaces/" + namespace + "/persistentvolumeclaims/" + pvc.getMetadata().getName())
+        WireMock.stubFor(
+                WireMock.get("/api/v1/namespaces/" + namespace + "/persistentvolumeclaims/" + pvc.getMetadata().getName())
                         .willReturn(
                                 aJsonResponse(pvc)
                         )
         );
-        stubFor(
-                get("/api/v1/namespaces/" + namespace + "/pods/" + pod.getMetadata().getName())
+        WireMock.stubFor(
+                WireMock.get("/api/v1/namespaces/" + namespace + "/pods/" + pod.getMetadata().getName())
                         .willReturn(
                                 aJsonResponse(pod)
                         )
@@ -134,7 +134,7 @@ public class ImageDirectoryIntegrationTest {
     }
 
     private ResponseDefinitionBuilder aJsonResponse(Object o) {
-        return aResponse()
+        return WireMock.aResponse()
                 .withHeader("Content-Type", "application/json")
                 .withBody(json.serialize(o));
     }

@@ -1,11 +1,10 @@
 package io.espinosa;
 
-import io.espinosa.hdfs.ActualZkfc;
 import io.espinosa.hdfs.WrapperZkfc;
+import io.espinosa.hdfs.ActualZkfc;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.HdfsConfiguration;
-
-import static org.apache.hadoop.util.ExitUtil.terminate;
+import org.apache.hadoop.util.ExitUtil;
 
 public class KubeZkfc {
     private final ActualZkfc upstreamZkfc;
@@ -18,7 +17,7 @@ public class KubeZkfc {
         try {
             System.exit(kubeZkfc.start());
         } catch (Throwable t) {
-            terminate(1, t);
+            ExitUtil.terminate(1, t);
         }
     }
 

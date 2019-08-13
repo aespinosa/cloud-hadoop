@@ -19,7 +19,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 public class ClusterStateIntegrationTest {
     private static final String TEST_NAMESPACE = "default";
     private static final String POD_NAME = "namenode-0";
-    @Rule public WireMockRule stubServer = new WireMockRule(wireMockConfig().dynamicPort());
+    @Rule public WireMockRule stubServer = new WireMockRule(WireMockConfiguration.wireMockConfig().dynamicPort());
 
     @Test
     public void newCluster() throws Exception {

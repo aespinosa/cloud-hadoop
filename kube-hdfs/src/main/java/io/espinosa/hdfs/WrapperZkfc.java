@@ -1,6 +1,5 @@
 package io.espinosa.hdfs;
 
-import io.espinosa.hdfs.ActualZkfc;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ha.ZKFailoverController;
 import org.apache.hadoop.hdfs.tools.DFSZKFailoverController;

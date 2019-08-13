@@ -6,6 +6,7 @@ import io.espinosa.hdfs.ImageDirectory;
 import io.espinosa.KubeNameNode;
 import junit.framework.TestCase;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.mockito.Mockito.*;
 

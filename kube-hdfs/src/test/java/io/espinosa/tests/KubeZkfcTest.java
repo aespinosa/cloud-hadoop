@@ -1,11 +1,10 @@
 package io.espinosa.tests;
 
-import io.espinosa.hdfs.ActualZkfc;
 import io.espinosa.KubeZkfc;
+import io.espinosa.hdfs.ActualZkfc;
 import org.junit.Assert;
 import org.junit.Test;
-
-import static org.mockito.Mockito.*;
+import org.mockito.Mockito;
 
 public class KubeZkfcTest {
     @Test

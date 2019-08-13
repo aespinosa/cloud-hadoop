@@ -1,18 +1,20 @@
 package io.espinosa.tests;
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.espinosa.hdfs.ImageDirectory;
 import io.espinosa.hdfs.kubernetes.PersistentVolumeAsImageDirectory;
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.JSON;
 import io.kubernetes.client.models.*;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
 import java.util.Map;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 public class ImageDirectoryIntegrationTest {
     private static final String TEST_NAMESPACE = "default";

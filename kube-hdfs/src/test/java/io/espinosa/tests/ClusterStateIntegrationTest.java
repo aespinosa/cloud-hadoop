@@ -1,6 +1,7 @@
 package io.espinosa.tests;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.espinosa.hdfs.ClusterState;
 import io.espinosa.hdfs.kubernetes.StatefulSetForClusterManagement;
@@ -13,8 +14,6 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 public class ClusterStateIntegrationTest {
     private static final String TEST_NAMESPACE = "default";

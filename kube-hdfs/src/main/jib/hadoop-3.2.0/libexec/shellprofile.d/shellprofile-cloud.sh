@@ -1,7 +1,10 @@
 hadoop_add_profile cloud
 
 function _cloud_hadoop_classpath {
-  hadoop_add_classpath /cloud-hadoop/cloud-hadoop-1.0-SNAPSHOT.jar
+  for jar in /app/libs/*.jar; do
+    hadoop_add_classpath $jar
+  done
+  hadoop_add_classpath /app/classes
 }
 
 function hdfs_subcommand_kube_namenode {

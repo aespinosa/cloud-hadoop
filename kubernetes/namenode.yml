@@ -188,7 +188,7 @@ spec:
             name: zkfc
       containers:
         - name: namenode
-          image: aespinosa/hadoop:latest
+          image: aespinosa/hdfs:latest
           imagePullPolicy: Always
           command: ["/hadoop-3.2.0/bin/hdfs"]
           args: ["--config", "/etc/hadoop", "kube_namenode"]
@@ -198,7 +198,7 @@ spec:
             - name: image
               mountPath: /var/run/hadoop/hdfs
         - name: zkfc
-          image: aespinosa/hadoop:latest
+          image: aespinosa/hdfs:latest
           imagePullPolicy: Always
           command: ["/hadoop-3.2.0/bin/hdfs"]
           args: ["--config", "/etc/hadoop", "kube_zkfc"]

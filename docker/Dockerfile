@@ -17,10 +17,6 @@ RUN curl -O -s http://mirror.cc.columbia.edu/pub/software/apache/hadoop/common/h
 FROM base as hadoop
 
 COPY --from=hadoop-builder /hadoop-3.2.0 /hadoop-3.2.0
-COPY docker/shellprofile-log4j.sh /hadoop-3.2.0/libexec/shellprofile.d/hadoop-log4j.sh
-COPY docker/shellprofile-cloud.sh /hadoop-3.2.0/libexec/shellprofile.d/hadoop-cloud.sh
-
-COPY target/*.jar /cloud-hadoop/
 
 FROM base as zookeeper-builder
 

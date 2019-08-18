@@ -14,38 +14,24 @@ Two additional commands are added that integrates running HDFS in Kubernetes:
 
 ## Installation
 
-An example `Dockerfile` implementing these steps can be found in
-`docker/Dockerfile`.
 
-1.  Build the package with maven.  This will create a resulting jar in
-    `target/cloud-hadoop-1.0-SNAPSHOT.jar`
-    
-        mvn package -DskipTests
-
-2.  Deploy the built jar in the previous step alongside your Hadoop
-    installation.
+1.  Prepare the base Docker image containing the Hadoop distribution.  An
+    example can be found in `docker/Dockerfile`.
         
-        /hadoop-3.2.0/bin/hdfs
-        /hadoop-3.2.0/...
-        /cloud-hadoop/cloud-hadoop-1.0-SNAPSHOT.jar
+        docker build -t aespinosa/hadoop -f docker/Dockerfile .
+        docker push aespinosa/hadoop
 
-3.  Create the following Shell Profile and install it in your
-    `$HADOOP_CONF_DIR/shellprofile.d/directory`
+1.  Build the shaded Kubernetes Java client and install to the local maven
+    repository.
 
-        # $HADOOP_CONF_DIR/shellprofile.d/kubernetes.sh
-        hadoop_add_profile cloud
+        pushd shade-kubernetes
+        maven install
+        popd
 
-        function _cloud_hadoop_classpath {
-          hadoop_add_classpath /cloud-hadoop/cloud-hadoop-1.0-SNAPSHOT.jar
-        }
+2.  Build the Docker image.  This will directly push the image to the target
+    registry defined by `-Dimage...`  
 
-        function hdfs_subcommand_kube_namenode {
-          HADOOP_CLASSNAME=io.espinosa.KubeNameNode
-        }
-
-        function hdfs_subcommand_kube_zkfc {
-          HADOOP_CLASSNAME=io.espinosa.KubeZkfc
-        }
+        mvn compile jib:build -Dimage=aespinosa/hdfs
 
 ## Kubernetes Deployment
 
@@ -69,7 +55,7 @@ The following are prerequisites to use `hdfs kube_namenode`
           # ...
           containers:
             - name: namenode
-              image: aespinosa/hadoop:3.2.0
+              image: aespinosa/hdfs:3.2.0
               command: ["/hadoop-3.2.0/bin/hdfs"]
               args: ["kube_namenode"]
               volumeMounts:

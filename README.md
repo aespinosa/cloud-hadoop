@@ -18,7 +18,7 @@ Two additional commands are added that integrates running HDFS in Kubernetes:
 1.  Prepare the base Docker image containing the Hadoop distribution.  An
     example can be found in `docker/Dockerfile`.
         
-        docker build -t aespinosa/hadoop -f docker/Dockerfile .
+        docker build -t aespinosa/hadoop -f docker/Dockerfile --target hadoop .
         docker push aespinosa/hadoop
 
 1.  Build the shaded Kubernetes Java client and install to the local maven
